@@ -1,11 +1,20 @@
 version: "3"
 
 services:
+  db: 
+    image: postgres
+    environment:
+      - POSTGRES_DB=dbdce2jiattm46
+      - POSTGRES_USER=myjyflufluwxne
+      - POSTGRES_PASSWORD=cb2c61f03626c17dce5981ce91a6c0911a7ec8d564c77c5d476428bc5a30ffb5
+      - POSTGRES_HOST=ec2-50-17-90-177.compute-1.amazonaws.com
   migration:
     build: .
     command: python3 manage.py migrate
     volumes:
       - .:/usr/src/project3
+    depends_on:
+      - db
   web:
     build: .
     command: python3 manage.py runserver 0.0.0.0:8000
@@ -14,4 +23,5 @@ services:
     ports:
       - "8000:8000"
     depends_on:
+      - db
       - migration
