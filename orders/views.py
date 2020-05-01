@@ -7,4 +7,13 @@ from django.urls import reverse
 
 # Create your views here.
 def index(request):
-    return HttpResponse("Project 3: TODO")
+    if not request.user.is_authenticated:
+        return render(request, "orders/login.html")
+    context = {
+        "user": request.user
+    }
+    return render(request, "orders/main.html")
+
+def logout(request):
+    logout(request)
+    return render(request, "orders/login.html")
