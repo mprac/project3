@@ -48,8 +48,8 @@ class Item(models.Model):
 class menuItem(models.Model):
     section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name='sections')
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='items')
-    style = models.ForeignKey(Style, on_delete=models.CASCADE, related_name='styles', blank=True)
-    size = models.ForeignKey(Size, on_delete=models.CASCADE, related_name='sizes', blank=True)
+    style = models.ForeignKey(Style, on_delete=models.CASCADE, related_name='styles', blank=True, null=True)
+    size = models.ForeignKey(Size, on_delete=models.CASCADE, related_name='sizes', blank=True, null=True)
     price = models.DecimalField(max_digits=4,decimal_places=2)
     
     def __str__(self):
@@ -69,38 +69,29 @@ class Price(models.Model):
         return f"{self.Topping} costs {self.amount}"
 
 class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders', blank=True, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
     menuItem = models.ForeignKey(menuItem, on_delete=models.CASCADE, null=True)
-    orderOption = [
-        ('PU', 'Pick up'),
-        ('DL', 'Delivery')
-    ]
-    option = models.CharField(max_length=64, choices=orderOption, default='PU')
-    address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True)
     toppings = models.ManyToManyField(Topping, blank=True)
     count = models.IntegerField()
-    statusChoice = [
-        ('CRT', 'In Cart'),
-        ('PLCD', 'Placed'),
-        ('CKNG', 'Cooking'),
-        ('OFD', 'Out For Delivery'),
-        ('RDY', 'Ready For Pickup'),
-        ('CMP', 'Order Complete')
-        ]
-    status = models.CharField(max_length=64, choices=statusChoice, default='CRT')
-    instructions = models.TextField(max_length=300, blank=True)
 
     def __str__(self):
         return f"Order for {self.user} - {self.count} {self.menuItem}"
 
 class Cart(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='cart', blank=True, null=True)
-    orders = models.ManyToManyField(Order)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+    address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True)
+    orders = models.ManyToManyField(Order, related_name='orders')
     date = models.DateTimeField(timezone.now())
+    current_status = models.BooleanField(default=True)
+    orderOption = [
+        ('PU', 'Pick up'),
+        ('DL', 'Delivery')
+    ]
+    option = models.CharField(max_length=64, choices=orderOption, default='PU')
+    instructions = models.TextField(max_length=300, blank=True)
 
-    def get_cart_total(self):
-         return sum([int(order.menuItem.price * order.count) for order in self.orders.all()])
+    def cart_total(self): # 2 decimal places
+         return sum([round(order.menuItem.price * order.count, 2) for order in self.orders.all()])
 
     def __str__(self):
-        return f"{self.user} {self.date}"
- 
+        return f"For {self.user} ordered on {self.date}, Status: {self.current_status}, Option: {self.option}"
