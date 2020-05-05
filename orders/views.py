@@ -9,7 +9,7 @@ from django.urls import reverse
 # Create your views here.
 def index(request):
     if not request.user.is_authenticated:
-        return render(request, "orders/login.html")
+        return HttpResponseRedirect('login')
     context = {
         "user": request.user
     }
@@ -25,6 +25,9 @@ def join(request):
         form = RegisterForm()
     return render(request, "orders/join.html", {'form': form})
 
-def logout(request):
-    logout(request)
+def login(request):
     return render(request, "orders/login.html")
+
+# def logout(request):
+#     logout(request)
+#     return render(request, "orders/login.html")
