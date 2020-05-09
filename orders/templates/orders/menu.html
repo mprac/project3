@@ -6,15 +6,16 @@
 <h1>Main page</h1>
 <a href="/logout">Logout</a>
 Hello {{ user.first_name }}
-
-
+<p>{{ menu }}</p>
 <ul>
-    {% for menu in menus %}
-    <li><a href="{% url 'menu' menu.id %}">
-    {{ menu.name }}
-    </a></li>
-    {% endfor %}
+   {% for section in sections %}
+   <li>
+      <a href="{% url 'section' menu.id section.id %}">{{section.name}}</a>
+   </li>
+  {% endfor %}
 </ul>
 
-{{ menuitems }}
+
+
+
 {% endblock %}

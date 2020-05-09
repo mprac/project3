@@ -4,6 +4,9 @@
 {% load crispy_forms_tags %}
 {% block body %} 
 <h1>Join page</h1>
+{% if error %}
+{{ error }}
+{% endif %}
 <form class="form-group" method="post">
     {% csrf_token %}
     {{form|crispy}}

@@ -18,9 +18,12 @@ class Menu(models.Model):
     def __str__(self):
         return f"Menu - {self.name}"
 
-class Section(models.Model):
+class Section(models.Model): # Menu.sections.all() for each section.menuitems.all()
     name = models.CharField(max_length=64)
     menu = models.ForeignKey(Menu, on_delete=models.CASCADE, related_name="sections")
+
+    def get_menuitems(self):
+        return ([menuitem for menuitem in self.menuitems.all()])
 
     def __str__(self):
         return f"Section - {self.name} in {self.menu} Menu"
@@ -44,28 +47,23 @@ class Item(models.Model):
     def __str__(self):
         return f"{self.name}"
 
-class menuItem(models.Model):
+class menuItem(models.Model): # Section.menuitems.all()
     section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name='menuitems')
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     style = models.ForeignKey(Style, on_delete=models.CASCADE, blank=True, null=True)
     size = models.ForeignKey(Size, on_delete=models.CASCADE, blank=True, null=True)
     price = models.DecimalField(max_digits=4,decimal_places=2)
     
+
     def __str__(self):
         return f"{self.item} in {self.section}, Size: {self.size}, Style: {self.style}, Price: {self.price}"
 
 class Topping(models.Model):
     name = models.CharField(max_length=64)
+    price = models.DecimalField(max_digits=4,decimal_places=2)
 
     def __str__(self):
-        return f"{self.name}"
-
-class Price(models.Model):
-    amount = models.DecimalField(max_digits=4,decimal_places=2)
-    Topping = models.OneToOneField(Topping, on_delete=models.CASCADE, related_name="price")
-
-    def __str__(self):
-        return f"{self.Topping} costs {self.amount}"
+        return f"{self.name} costs {self.price}"
 
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="orders", blank=True, null=True)
@@ -73,11 +71,14 @@ class Order(models.Model):
     toppings = models.ManyToManyField(Topping, blank=True)
     count = models.IntegerField()
 
+    def topping_cost(self):
+        return sum([round(topping.price, 2) for topping in self.toppings.all()])
+
     def __str__(self):
-        return f"Order for {self.user} - {self.count} {self.menuItem}"
+        return f"{self.id}: Order for {self.user} - Toppings: {self.toppings}, {self.count} {self.menuItem}"
 
 class Cart(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="cart", blank=True, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="cart")
     address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True)
     orders = models.ManyToManyField(Order)
     date = models.DateTimeField(timezone.now())
@@ -90,7 +91,7 @@ class Cart(models.Model):
     instructions = models.TextField(max_length=300, blank=True)
 
     def cart_total(self): # 2 decimal places
-         return sum([round(order.menuItem.price * order.count, 2) for order in self.orders.all()])
+         return sum([round(order.menuItem.price * order.count + order.topping_cost(), 2) for order in self.orders.all()])
 
     def __str__(self):
         return f"For {self.user} ordered on {self.date}, Status: {self.current_status}, Option: {self.option}"
