@@ -1,0 +1,15 @@
+{% extends "orders/base.html" %}
+
+{% block title %} Login {% endblock %}
+{% load crispy_forms_tags %}
+{% block body %} 
+<h1>Join page</h1>
+{% if error %}
+{{ error }}
+{% endif %}
+<form class="form-group" method="post">
+    {% csrf_token %}
+    {{form|crispy}}
+    <button type="submit" class="btn btn-success">Create Account</button>
+</form>
+{% endblock %}

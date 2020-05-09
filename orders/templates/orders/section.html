@@ -8,13 +8,23 @@
 Hello {{ user.first_name }}
 
 
+
+<p>{{ menu.name }}</p>
+
+{{section.name}}
+
 <ul>
-    {% for menu in menus %}
-    <li><a href="{% url 'menu' menu.id %}">
-    {{ menu.name }}
-    </a></li>
+    {% for item in menuitems %}
+        <li class="{{ item.size }}">{{item.item}} | {{ item.size }} for ${{ item.price}}</li>
     {% endfor %}
 </ul>
+<table>
+    <tr>
 
-{{ menuitems }}
+    </tr>
+</table>
+
+
+
+
 {% endblock %}
