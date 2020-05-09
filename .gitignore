@@ -132,3 +132,4 @@ orders/__pycache__/models.cpython-38.pyc
 orders/__pycache__/urls.cpython-38.pyc
 orders/__pycache__/views.cpython-38.pyc
 pizza/__pycache__/settings.cpython-38.pyc
+*.pyc
