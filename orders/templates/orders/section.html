@@ -1,30 +1,60 @@
 {% extends "orders/base.html" %}
-
 {% block title %} Login {% endblock %}
-
 {% block body %}
+
 <h1>Main page</h1>
 <a href="/logout">Logout</a>
 Hello {{ user.first_name }}
+<p id="menu" data-menu="{{menu.id}}">{{ menu.name }}</p>
+<p id="section" data-section="{{section.id}}">
+    {{section.name}}
+</p>
 
-
-
-<p>{{ menu.name }}</p>
-
-{{section.name}}
-
-<ul>
-    {% for item in menuitems %}
-        <li class="{{ item.size }}">{{item.item}} | {{ item.size }} for ${{ item.price}}</li>
-    {% endfor %}
-</ul>
+<br />
 <table>
+   
     <tr>
+       
+        <th>
+            Item
+        </th> 
+        <th>
+            Large
+        </th>
+        <th id="food">
+            Small
+        </th>
 
     </tr>
+ 
+    {% regroup menuitems by item as item_list %}
+    <tr>
+        {% for items, item_name in item_list %}
+        <td>
+            {{  items }}
+        </td>
+        {% for item in item_name %}
+        <td>
+        {{item.id}} {{ item.size|slice:":1"}}  $<span>{{ item.price }}</span>
+            <form action="createOrder" method="POST">
+                
+            </form>
+            <button class="add" data-item="{{item.id}}">&plus;</button>
+
+            
+        </td>
+        {% endfor %}
+     
+    </tr>
+    {% endfor %}
+
 </table>
 
+<hr />
+<h2 id='ordersToPlace'>Cart</h2>
 
+<ul id="orders">
 
+</ul>
 
 {% endblock %}

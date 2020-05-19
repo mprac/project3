@@ -22,17 +22,15 @@ class Section(models.Model): # Menu.sections.all() for each section.menuitems.al
     name = models.CharField(max_length=64)
     menu = models.ForeignKey(Menu, on_delete=models.CASCADE, related_name="sections")
 
-    def get_menuitems(self):
-        return ([menuitem for menuitem in self.menuitems.all()])
+    def get_menuitemname(self):
+        return ([menuitem.item for menuitem in self.menuitems.all()])
+
+    def get_menuitem(self):
+         return ([menuitem for menuitem in self.menuitems.all()])
+    
 
     def __str__(self):
         return f"Section - {self.name} in {self.menu} Menu"
-
-class Size(models.Model):
-    size = models.CharField(max_length=64)
-
-    def __str__(self):
-        return f"{self.size}"
 
 class Style(models.Model):
     name = models.CharField(max_length=64)
@@ -49,14 +47,19 @@ class Item(models.Model):
 
 class menuItem(models.Model): # Section.menuitems.all()
     section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name='menuitems')
-    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='menuitems')
     style = models.ForeignKey(Style, on_delete=models.CASCADE, blank=True, null=True)
-    size = models.ForeignKey(Size, on_delete=models.CASCADE, blank=True, null=True)
-    price = models.DecimalField(max_digits=4,decimal_places=2)
-    
+    sizeOptions = [
+        ('Regular', 'Regular'),
+        ('Small','Small'),
+        ('Medium','Medium'),
+        ('Large','Large')
+    ]
+    size = models.CharField(max_length=64, choices=sizeOptions, default='Regular')
+    price = models.DecimalField(max_digits=4, decimal_places=2)
 
     def __str__(self):
-        return f"{self.item} in {self.section}, Size: {self.size}, Style: {self.style}, Price: {self.price}"
+        return f"{self.item} in {self.section}, Style: {self.style}, Size {self.size}, Price {self.price}"
 
 class Topping(models.Model):
     name = models.CharField(max_length=64)
@@ -72,7 +75,7 @@ class Order(models.Model):
     count = models.IntegerField()
 
     def topping_cost(self):
-        return sum([round(topping.price, 2) for topping in self.toppings.all()])
+        return sum([round(topping.price * self.count, 2) for topping in self.toppings.all()])
 
     def __str__(self):
         return f"{self.id}: Order for {self.user} - Toppings: {self.toppings}, {self.count} {self.menuItem}"

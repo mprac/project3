@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'crispy_forms',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -52,6 +53,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'pizza.urls'
+ASGI_APPLICATION = "pizza.routing.application"
 
 TEMPLATES = [
     {
@@ -71,17 +73,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'pizza.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'dbdce2jiattm46',
-        'USER': 'myjyflufluwxne',
-        'PASSWORD': 'cb2c61f03626c17dce5981ce91a6c0911a7ec8d564c77c5d476428bc5a30ffb5',
-        'HOST': 'ec2-50-17-90-177.compute-1.amazonaws.com',
+        'NAME': 'dfn080lhvm7tv5',
+        'USER': 'uwfsqxzdxzhuny',
+        'PASSWORD': '418204f17d7d03c58bdda6ec52bc86a14d61b06aece0d69bf37b5fb9b1ddc509',
+        'HOST': 'ec2-52-44-55-63.compute-1.amazonaws.com',
         'PORT': '5432',
     }
 }
@@ -122,7 +123,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
-
+# Channels
 STATIC_URL = '/static/'
 CRISPY_TAMPLATE_PACK= 'bootstrap4'
 LOGIN_REDIRECT_URL = '/'
