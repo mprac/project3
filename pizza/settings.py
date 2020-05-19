@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'crispy_forms',
-    'channels',
 ]
 
 MIDDLEWARE = [
@@ -53,7 +52,6 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'pizza.urls'
-ASGI_APPLICATION = "pizza.routing.application"
 
 TEMPLATES = [
     {
