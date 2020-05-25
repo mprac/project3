@@ -41,9 +41,10 @@ class Style(models.Model):
 class Item(models.Model):
     name = models.CharField(max_length=64)
     hasToppings = models.BooleanField(default=False)
+    toppingCount = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.name}"
+        return f"{self.name}, {self.hasToppings}, {self.toppingCount}"
 
 class menuItem(models.Model): # Section.menuitems.all()
     section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name='menuitems')
@@ -59,7 +60,7 @@ class menuItem(models.Model): # Section.menuitems.all()
     price = models.DecimalField(max_digits=4, decimal_places=2)
 
     def __str__(self):
-        return f"{self.item} in {self.section}, Style: {self.style}, Size {self.size}, Price {self.price}"
+        return f"{self.id} - {self.item} in {self.section}, Style: {self.style}, Size {self.size}, Price {self.price}"
 
 class Topping(models.Model):
     name = models.CharField(max_length=64)

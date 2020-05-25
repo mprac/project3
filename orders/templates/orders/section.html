@@ -1,5 +1,13 @@
 {% extends "orders/base.html" %}
 {% block title %} Login {% endblock %}
+<script>
+    $("select").on('click', 'option', function () {
+        if ($("select option:selected").length > 3) {
+            $(this).removeAttr("selected");
+            // alert('You can select upto 3 options only');
+        }
+    });
+</script>
 {% block body %}
 
 <h1>Main page</h1>
@@ -12,12 +20,12 @@ Hello {{ user.first_name }}
 
 <br />
 <table>
-   
+
     <tr>
-       
+
         <th>
             Item
-        </th> 
+        </th>
         <th>
             Large
         </th>
@@ -26,7 +34,7 @@ Hello {{ user.first_name }}
         </th>
 
     </tr>
- 
+
     {% regroup menuitems by item as item_list %}
     <tr>
         {% for items, item_name in item_list %}
@@ -35,26 +43,40 @@ Hello {{ user.first_name }}
         </td>
         {% for item in item_name %}
         <td>
-        {{item.id}} {{ item.size|slice:":1"}}  $<span>{{ item.price }}</span>
-            <form action="createOrder" method="POST">
-                
+            {{item.id}} {{ item.size|slice:":1"}} $<span>{{ item.price }}</span>
+            <form action="{% url 'create' menu.id section.id %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="menuitemid" value="{{ item.id }}">
+                <button class="add" data-item="{{item.id}}">&plus;</button>
             </form>
-            <button class="add" data-item="{{item.id}}">&plus;</button>
 
-            
+
+
         </td>
         {% endfor %}
-     
+
     </tr>
     {% endfor %}
 
 </table>
 
 <hr />
-<h2 id='ordersToPlace'>Cart</h2>
+<h2 id='ordersToPlace'>Your Orders</h2>
 
 <ul id="orders">
+    {% for order in orders %}
+    <li>
+        <form action="{% url 'edit' menu.id section.id order.id %}" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="orderid" value="{{ order.id }}">
+            {{ order.menuItem.item.name }} Count: {{ order.count }} <button type="submit">Edit</button>
+        </form>
+        <form action="{% url 'delete' menu.id section.id order.id %}" method="POST">
+            <button type="submit">Delete</button>
+        </form>
+    </li>
 
+    {% endfor %}
 </ul>
 
 {% endblock %}

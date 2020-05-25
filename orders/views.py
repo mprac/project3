@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from .models import *
 from django.views.decorators.http import require_http_methods
-from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie, requires_csrf_token
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie, requires_csrf_token, csrf_protect
 from django.views.decorators.vary import vary_on_headers
 from django.template import RequestContext
 
@@ -57,11 +57,14 @@ def menu(request, menu_id):
 @login_required(login_url='/login')
 def section(request, menu_id, section_id):
     try:
+        user = request.user
         menu = Menu.objects.get(pk=menu_id)
         section = Section.objects.get(pk=section_id)
         menuitemname = section.get_menuitemname() # dont need
         items = set(menuitemname).intersection(Item.objects.all()) # dont need
         menuitems = section.menuitems.all().order_by('item', 'size')
+        orders = Order.objects.filter(user=user.id)
+        toppings = Topping.objects.all()
     except Section.DoesNotExist:
         raise Http404("Section does not exist")
     context = {
@@ -69,21 +72,94 @@ def section(request, menu_id, section_id):
         "section": section,
         "items": items,
         "menuitems": menuitems,
+        "orders": orders,
+        "toppings": toppings,
     }
     return render(request, "orders/section.html", context)
 
+@login_required(login_url='/login')
+def create(request, menu_id, section_id):
+    try:
+        user = request.user
+        menuitemid = int(request.POST["menuitemid"])
+        menuitem = menuItem.objects.get(pk=menuitemid)
+        orders = Order.objects.filter(user=user.id)
+        toppings = Topping.objects.all()
+    except KeyError:
+        pass
+    context = {
+        'user': user,
+        'menuitem': menuitem,
+         "orders": orders,
+        "toppings": toppings,
+    }
+    return render(request, "orders/create.html", context)
+
+# Edit Order page
+@login_required(login_url='/login')
+def edit(request, menu_id, section_id, order_id):
+    try:
+        user = request.user
+        #orderid = int(request.POST["orderid"])
+        order = Order.objects.get(pk=order_id)
+        alltoppings = Topping.objects.all()
+        selectedToppings = order.toppings.all()
+    except KeyError:
+        pass
+    context = {
+        "user": user,
+        "order": order,
+        "toppings": alltoppings,
+        "selectedToppings": selectedToppings,
+    }
+    return render(request, "orders/edit.html", context)
+
+@login_required(login_url='/login')
+def update(request):
+    return HttpResponse({'hello':'hello'})
+
+# update edited order
+# @login_required(login_url='/login')
+# def update(request, menu_id, section_id, order_id):
+#     try:
+#         user = request.user
+#         order = Order.objects.get(pk=order_id)
+#     except KeyError:
+#         pass
+#     return HttpResponseRedirect(reverse("edit", args=(menu_id,section_id, order_id)))
+
+
+
+# delete order
+@login_required(login_url='/login')
+def delete(request, menu_id, section_id, order_id):
+    try:
+        order = Order.objects.get(pk=order_id)
+    except KeyError:
+        return redirect(index)
+    except Order.DoesNotExist:
+        return redirect(index)
+    order.delete()
+    return HttpResponseRedirect(reverse("edit", args=(menu_id,section_id,)))
+
 #A request that makes changes in the database - should use POST.
 #GET should be used only for requests that do not affect the state of the system.
-@require_http_methods(["POST"])
-@vary_on_headers('X_REQUESTED_WITH')
-@csrf_exempt
-def createOrder(HttpRequest):
-    if HttpRequest.is_ajax():
-        data = {'result': 'Good' }
-    else:
-        data = {'result': 'shit' }
-    return JsonResponse(data)
+# @require_http_methods(["POST"])
+# @csrf_exempt
+# def createOrder(request):
+#     if request.method == "POST":
+#         data = {'result': 'Good' }
+#     else:
+#         data = {'result': 'shit' }
+#     return JsonResponse(data)
         
 
     
 
+# def post(request):
+#     if request.method == "POST": #os request.GET()
+#         get_value= request.body
+#         # Do your logic here coz you got data in `get_value`
+#         data = {}
+#         data['result'] = 'you made a request'
+# #         return HttpResponse(json.dumps(data), content_type="application/json")

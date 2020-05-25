@@ -1,0 +1,64 @@
+{% extends "orders/base.html" %}
+
+{% block title %} Create Order {% endblock %}
+
+{% block body %}
+<h1>Create Order</h1>
+<a href="/logout">Logout</a>
+Hello {{ user.first_name }}
+
+
+
+<!-- create order form  -->
+<form action="">
+    <div class="form-group">
+   
+    {% csrf_token %}
+    <input type="hidden" name="user" value="{{user.id}}">
+    <input type="hidden" name="menuItem" value="{{ menuitem.id }}">
+    <label class="form-control">{{ menuitem.item.name }} {{ menuitem.size }} {{ menuitem.price }}</label>
+    {% if menuitem.item.hasToppings %}
+    <input class="form-control" id="toppingCount" type="hidden" data-count="{{ menuitem.item.toppingCount }}">
+    <div class="accordion" id="accordionCheckbox">
+        <div class="card">
+          <div class="card-header" id="heading">
+            <h2 class="mb-0">
+              <button class="checkboxbutton btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#this" aria-expanded="false" aria-controls="this">
+                Select Toppings
+              </button>
+            </h2>
+          </div>
+      
+          <div id="this" class="collapse" aria-labelledby="heading" data-parent="#accordionCheckbox">
+            <div class="card-body">
+                 <!-- Checkboxes start  here -->
+                {% for topping in toppings %}
+               
+                <div class="form-check">
+                    <input class="this" type="checkbox" value="{{topping.name}}" >
+                    <label class="form-check-label" >
+                        {{ topping.name }}
+                    </label>
+                  </div>
+         
+                {% endfor %}
+                <!-- Checkboxes end  here -->
+            </div>
+            </div>
+          </div>
+        </div>
+    {% endif %}
+    <!-- end toppings -->
+
+    <input class="form-control" type="number" name="count" id="countInput" value="How many orders" >
+    <button class="form-control" type="submit">Add To Cart</button>
+</div>
+</form>
+
+
+{% endblock %}
+
+<!-- user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="orders", blank=True, null=True)
+menuItem = models.ForeignKey(menuItem, on_delete=models.CASCADE, null=True)
+toppings = models.ManyToManyField(Topping, blank=True)
+count = models.IntegerField() -->
