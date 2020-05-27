@@ -44,11 +44,11 @@ Hello {{ user.first_name }}
         {% for item in item_name %}
         <td>
             {{item.id}} {{ item.size|slice:":1"}} $<span>{{ item.price }}</span>
-            <form action="{% url 'create' menu.id section.id %}" method="POST">
+            <!-- <form action="{% url 'create' menu.id section.id %}" method="POST">
                 {% csrf_token %}
-                <input type="hidden" name="menuitemid" value="{{ item.id }}">
+                <input type="hidden" name="menuitemid" value="{{ item.id }}"> -->
                 <button class="add" data-item="{{item.id}}">&plus;</button>
-            </form>
+            <!-- </form> -->
 
 
 
@@ -71,10 +71,12 @@ Hello {{ user.first_name }}
             <input type="hidden" name="orderid" value="{{ order.id }}">
             {{ order.menuItem.item.name }} Count: {{ order.count }} <button type="submit">Edit</button>
         </form>
-        <form action="{% url 'delete' menu.id section.id order.id %}" method="POST">
-            <button type="submit">Delete</button>
-        </form>
+        
     </li>
+    <form action="{% url 'delete' menu.id section.id order.id %}" method="POST">
+        {% csrf_token %}
+        <button type="submit">Delete</button>
+    </form>
 
     {% endfor %}
 </ul>

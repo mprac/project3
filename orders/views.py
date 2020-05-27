@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from .forms import RegisterForm
 from django.contrib.auth.models import User
-from django.urls import reverse
+from django.urls import reverse, resolve
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from .models import *
@@ -11,6 +11,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie, requires_csrf_token, csrf_protect
 from django.views.decorators.vary import vary_on_headers
 from django.template import RequestContext
+from django.core import serializers
 
 # () tuple - a collection which is ordered and changeable. allows duplicate
 # [] list - a collection which is ordered and unchangeable. allows duplicate
@@ -78,11 +79,10 @@ def section(request, menu_id, section_id):
     return render(request, "orders/section.html", context)
 
 @login_required(login_url='/login')
-def create(request, menu_id, section_id):
+def create(request, menu_id, section_id, item_id):
     try:
         user = request.user
-        menuitemid = int(request.POST["menuitemid"])
-        menuitem = menuItem.objects.get(pk=menuitemid)
+        menuitem = menuItem.objects.get(pk=item_id)
         orders = Order.objects.filter(user=user.id)
         toppings = Topping.objects.all()
     except KeyError:
@@ -94,6 +94,32 @@ def create(request, menu_id, section_id):
         "toppings": toppings,
     }
     return render(request, "orders/create.html", context)
+
+@login_required(login_url='/login')
+def add(request):
+    try:
+        user = request.user
+        Orders = user.orders.all()
+        item_id = request.POST['itemid']
+        menuitem = menuItem.objects.get(pk=item_id)
+        item = menuitem.item.name
+        section_id = menuitem.section.id
+        menu_id = menuitem.section.menu.id
+    except KeyError:
+        pass
+    if menuitem.item.hasToppings:
+        new = Order.objects.create(user=user, menuItem=menuitem, count=1)
+        has = 'True'
+    else:
+        has = 'False'
+    context = {
+        'menuitem': item,
+        'hasTopping': has,
+        'orders': Orders,
+        'sectionid': section_id,
+        'menuid': menu_id,
+    } 
+    return HttpResponse(JsonResponse(context))
 
 # Edit Order page
 @login_required(login_url='/login')
@@ -118,17 +144,6 @@ def edit(request, menu_id, section_id, order_id):
 def update(request):
     return HttpResponse({'hello':'hello'})
 
-# update edited order
-# @login_required(login_url='/login')
-# def update(request, menu_id, section_id, order_id):
-#     try:
-#         user = request.user
-#         order = Order.objects.get(pk=order_id)
-#     except KeyError:
-#         pass
-#     return HttpResponseRedirect(reverse("edit", args=(menu_id,section_id, order_id)))
-
-
 
 # delete order
 @login_required(login_url='/login')
@@ -140,26 +155,4 @@ def delete(request, menu_id, section_id, order_id):
     except Order.DoesNotExist:
         return redirect(index)
     order.delete()
-    return HttpResponseRedirect(reverse("edit", args=(menu_id,section_id,)))
-
-#A request that makes changes in the database - should use POST.
-#GET should be used only for requests that do not affect the state of the system.
-# @require_http_methods(["POST"])
-# @csrf_exempt
-# def createOrder(request):
-#     if request.method == "POST":
-#         data = {'result': 'Good' }
-#     else:
-#         data = {'result': 'shit' }
-#     return JsonResponse(data)
-        
-
-    
-
-# def post(request):
-#     if request.method == "POST": #os request.GET()
-#         get_value= request.body
-#         # Do your logic here coz you got data in `get_value`
-#         data = {}
-#         data['result'] = 'you made a request'
-# #         return HttpResponse(json.dumps(data), content_type="application/json")
+    return HttpResponseRedirect(reverse("delete", args=(menu_id,section_id,)))

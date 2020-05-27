@@ -10,7 +10,7 @@ urlpatterns = [
     path("<int:menu_id>/<int:section_id>/create", views.create, name="create"),
     path("<int:menu_id>/<int:section_id>/<int:order_id>", views.edit, name="edit"),
     path("<int:menu_id>/<int:section_id>/<int:order_id>", views.delete, name="delete"),
-    # path("<int:menu_id>/<int:section_id>/<int:order_id>", views.update, name="update"),
+    path("add/", views.add, name="add")
     
 ]
 
