@@ -1,0 +1,13 @@
+{% extends "orders/base.html" %}
+
+{% block title %} Edit Address {% endblock %}
+{% load crispy_forms_tags %}
+{% block body %}
+<form class="form-group" method="post">
+{% csrf_token %}
+{{form|crispy}}
+{{ address|crispy }}
+<input type="hidden" name="user">
+<button type="submit" class="btn btn-success">Update Profile</button>
+</form>
+{% endblock %}

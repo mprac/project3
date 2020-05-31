@@ -1,5 +1,21 @@
 {% extends "orders/base.html" %}
+{% block scripts %}
 
+<script>
+  window.addEventListener('load', function () {
+    const getid = document.querySelector('#toppingCount');
+    const limit = getid.dataset.count;
+
+    $(`.item`).on('change', function () {
+        if ($(`.item:checked`).length > limit) {
+            this.checked = false;
+            alert('Max toppings for order selected')
+        }
+    });
+
+  });
+  </script>
+{% endblock %}
 {% block title %} Create Order {% endblock %}
 
 {% block body %}
@@ -10,7 +26,7 @@ Hello {{ user.first_name }}
 
 
 <!-- create order form  -->
-<form action="">
+<form action="{% url 'add' %}" method="POST">
     <div class="form-group">
    
     {% csrf_token %}
@@ -35,11 +51,11 @@ Hello {{ user.first_name }}
                 {% for topping in toppings %}
                
                 <div class="form-check">
-                    <input class="this" type="checkbox" value="{{topping.name}}" >
+                    <input class="item" type="checkbox" value="{{topping.id}}" name="topping">
                     <label class="form-check-label" >
                         {{ topping.name }}
                     </label>
-                  </div>
+                </div>
          
                 {% endfor %}
                 <!-- Checkboxes end  here -->
@@ -50,15 +66,22 @@ Hello {{ user.first_name }}
     {% endif %}
     <!-- end toppings -->
 
-    <input class="form-control" type="number" name="count" id="countInput" value="How many orders" >
-    <button class="form-control" type="submit">Add To Cart</button>
+    <label for="ordercount">How many?</label>
+    <select class="form-control" id="ordercount" name="count">
+      <option>1</option>
+      <option>2</option>
+      <option>3</option>
+      <option>4</option>
+      <option>5</option>
+      <option>6</option>
+      <option>7</option>
+      <option>8</option>
+      <option>9</option>
+    </select>
+
+    <button id="addOrder" class="form-control" type="submit">Add To Cart</button>
 </div>
 </form>
 
 
 {% endblock %}
-
-<!-- user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="orders", blank=True, null=True)
-menuItem = models.ForeignKey(menuItem, on_delete=models.CASCADE, null=True)
-toppings = models.ManyToManyField(Topping, blank=True)
-count = models.IntegerField() -->

@@ -1,57 +1,42 @@
 {% extends "orders/base.html" %}
 {% block title %} Login {% endblock %}
-<script>
-    $("select").on('click', 'option', function () {
-        if ($("select option:selected").length > 3) {
-            $(this).removeAttr("selected");
-            // alert('You can select upto 3 options only');
-        }
-    });
-</script>
 {% block body %}
 
 <h1>Main page</h1>
 <a href="/logout">Logout</a>
 Hello {{ user.first_name }}
+<!-- Check if user has address saved or request address -->
+{% if user.address %}
+ {{ user.address.street }}
+{% else %}
+    <p>add delivery address</p>
+    <form action="{% url 'add_address' menu.id section.id %}" method="post">
+        {% csrf_token %}
+        <input type="text" placeholder="street" name="street">
+        <input type="text" placeholder="city" name="city">
+        <input type="text" placeholder="state" name="state">
+        <input type="number" placeholder="zipcode" name="zipcode" maxlength="5">
+        <button type="submit">Add Address</button>
+    </form>
+{% endif %}
+<!-- END Check if user has address saved or request address -->
 <p id="menu" data-menu="{{menu.id}}">{{ menu.name }}</p>
 <p id="section" data-section="{{section.id}}">
     {{section.name}}
 </p>
 
 <br />
+<!-- Regroup queried items to arrange into 2 columns or as needed -->
 <table>
-
-    <tr>
-
-        <th>
-            Item
-        </th>
-        <th>
-            Large
-        </th>
-        <th id="food">
-            Small
-        </th>
-
-    </tr>
-
     {% regroup menuitems by item as item_list %}
     <tr>
         {% for items, item_name in item_list %}
         <td>
-            {{  items }}
+            {{  items.name }}
         </td>
-        {% for item in item_name %}
+        {% for item in item_name reversed %}
         <td>
-            {{item.id}} {{ item.size|slice:":1"}} $<span>{{ item.price }}</span>
-            <!-- <form action="{% url 'create' menu.id section.id %}" method="POST">
-                {% csrf_token %}
-                <input type="hidden" name="menuitemid" value="{{ item.id }}"> -->
-                <button class="add" data-item="{{item.id}}">&plus;</button>
-            <!-- </form> -->
-
-
-
+            <a href="{% url 'create' menu.id section.id item.id %}"> <button class="btn btn-primary" type="submit">{{ item.size }} ${{ item.price }}</button> </a>
         </td>
         {% endfor %}
 
@@ -59,26 +44,24 @@ Hello {{ user.first_name }}
     {% endfor %}
 
 </table>
-
+<!-- END Regroup queried items to arrange into 2 columns or as needed -->
 <hr />
+<!-- Show items in cart -->
 <h2 id='ordersToPlace'>Your Orders</h2>
 
 <ul id="orders">
     {% for order in orders %}
     <li>
-        <form action="{% url 'edit' menu.id section.id order.id %}" method="POST">
+        <form action="{% url 'delete' menu.id section.id order.id %}" method="POST">
             {% csrf_token %}
-            <input type="hidden" name="orderid" value="{{ order.id }}">
-            {{ order.menuItem.item.name }} Count: {{ order.count }} <button type="submit">Edit</button>
+            {{ order.menuItem.item.name }} Count: {{ order.count }} 
+           {% for topping in order.toppings.all %}
+                {{ topping.name }}
+           {% endfor %}
+            <button type="submit">Delete</button>
         </form>
-        
     </li>
-    <form action="{% url 'delete' menu.id section.id order.id %}" method="POST">
-        {% csrf_token %}
-        <button type="submit">Delete</button>
-    </form>
-
     {% endfor %}
 </ul>
-
+<!-- END Show items in cart -->
 {% endblock %}

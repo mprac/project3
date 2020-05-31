@@ -1,0 +1,20 @@
+{% extends "orders/base.html" %}
+
+{% block title %} Login {% endblock %}
+
+{% block body %}
+<h1>Placed Orders page</h1>
+<a href="/logout">Logout</a>
+Hello {{ user.first_name }}
+
+
+<ul>
+    {% for menu in menus %}
+    <li><a href="{% url 'menu' menu.id %}">
+    {{ menu.name }}
+    </a></li>
+    {% endfor %}
+</ul>
+
+{{ menuitems }}
+{% endblock %}

@@ -1,9 +1,10 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.conf import settings
 
-class Address(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="address")
+class Address(models.Model): #delete
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="address", blank=True)
     street = models.CharField(max_length=64, blank=True)
     city = models.CharField(max_length=64, blank=True)
     state = models.CharField(max_length=2, blank=True)

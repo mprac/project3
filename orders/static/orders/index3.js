@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    
+
     function getCookie(name) {
         var cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -20,31 +20,42 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.add').forEach(button => {
         button.onclick = async () => {
             const request = new XMLHttpRequest();
-            
+
             request.open("POST", "/add/")
 
             //server response
             request.onload = () => {
                 const info = JSON.parse(request.responseText);
-                loadOrders(info);
-                console.log(info.menuitem, info.hasTopping);
+                // loadOrders(info);
+                // console.log(info.menuitem, info.hasTopping);
+                console.log(info);
             }
 
             var csrftoken = getCookie('csrftoken');
             request.setRequestHeader("X-CSRFToken", csrftoken);
 
-            itemid = Number(button.dataset.item);
+            const itemid = Number(button.dataset.item);
+            const count = Number(document.querySelector(`.c${itemid}`).value);
             const data = new FormData();
-            data.append('itemid',itemid);
+            data.append('itemid', itemid);
+            data.append('count', count);
             request.send(data);
 
         }
-        
-    })
 
-//End DOMContentLoaded
+
+    });
+
+
+
+
+    //End DOMContentLoaded
 });
 //End DOMContentLoaded
+
+//Edit address
+
+//end edit address
 
 function loadOrders(info) {
     jQuery('#orders').html("");
