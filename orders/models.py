@@ -85,7 +85,7 @@ class Order(models.Model):
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="cart")
     address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True)
-    orders = models.ManyToManyField(Order)
+    orders = models.ManyToManyField(Order, blank=True)
     date = models.DateTimeField(timezone.now())
     current_status = models.BooleanField(default=True)
     orderOption = [
@@ -94,6 +94,13 @@ class Cart(models.Model):
     ]
     option = models.CharField(max_length=64, choices=orderOption, default='PU')
     instructions = models.TextField(max_length=300, blank=True)
+
+    def create_cart(user):
+        if not Cart.objects.filter(user=user):
+            newcart = Cart.objects.create(user=user, date=timezone.now())
+        elif not Cart.objects.filter(user=user, current_status=True):
+            newcart = Cart.objects.create(user=user, date=timezone.now())
+        
 
     def cart_total(self): # 2 decimal places
          return sum([round(order.menuItem.price * order.count + order.topping_cost(), 2) for order in self.orders.all()])

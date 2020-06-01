@@ -63,5 +63,20 @@ Hello {{ user.first_name }}
     </li>
     {% endfor %}
 </ul>
+<hr>
+<h2>Your Cart total {{ cart.cart_total }}</h2>
+<ul>
+    {% for order in cart.orders.all %}
+        
+    <li>
+        {{ order.menuItem.item.name }} | 
+        {% for topping in order.toppings.all %}
+        {{ topping.name }}
+        {% endfor %}
+    </li>
+    
+    {% endfor %}
+</ul>
+
 <!-- END Show items in cart -->
 {% endblock %}

@@ -62,6 +62,7 @@ def menu(request, menu_id):
 def section(request, menu_id, section_id):
     try:
         user = request.user
+        Cart.create_cart(user)
         menu = Menu.objects.get(pk=menu_id)
         section = Section.objects.get(pk=section_id)
         menuitemname = section.get_menuitemname() # dont need
@@ -69,6 +70,7 @@ def section(request, menu_id, section_id):
         menuitems = section.menuitems.all().order_by('item', 'size')
         orders = Order.objects.filter(user=user.id)
         toppings = Topping.objects.all()
+        cart = Cart.objects.get(user=user, current_status=True)
     except Section.DoesNotExist:
         raise Http404("Section does not exist")
     context = {
@@ -78,6 +80,7 @@ def section(request, menu_id, section_id):
         "menuitems": menuitems,
         "orders": orders,
         "toppings": toppings,
+        "cart": cart,
     }
     return render(request, "orders/section.html", context)
 
@@ -127,6 +130,7 @@ def create(request, menu_id, section_id, item_id):
     }
     return render(request, "orders/create.html", context)
 
+# add order to existing cart or create new cart
 @login_required(login_url='/login')
 def add(request):
     try:
@@ -144,6 +148,13 @@ def add(request):
     neworder = Order.objects.get(pk=new.id)
     if toppings is not None:
         neworder.toppings.set(toppings)
+    cartid = Cart.create_cart(user)
+    if cartid:
+        cart = Cart.objects.get(pk=cartid)
+        cart.orders.add(neworder)
+    else: 
+        cart = Cart.objects.get(user=user, current_status=True)
+        cart.orders.add(neworder)
     return HttpResponseRedirect(reverse('section', args=(menu_id, section_id)))
 
 # Edit Order page
