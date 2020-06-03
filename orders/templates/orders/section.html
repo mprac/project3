@@ -2,28 +2,32 @@
 {% block title %} Login {% endblock %}
 {% block body %}
 
-<h1>Main page</h1>
-<a href="/logout">Logout</a>
-Hello {{ user.first_name }}
+<h1>{{section.name}}</h1>
 <!-- Check if user has address saved or request address -->
-{% if user.address %}
- {{ user.address.street }}
+{% if user.address.get %}
+Deliver to <a href="">
+    {{ user.address.get.street }}, {{ user.address.get.city }}, {{ user.address.get.state }} {{ user.address.get.zipcode }}
+</a>
 {% else %}
-    <p>add delivery address</p>
-    <form action="{% url 'add_address' menu.id section.id %}" method="post">
-        {% csrf_token %}
-        <input type="text" placeholder="street" name="street">
-        <input type="text" placeholder="city" name="city">
-        <input type="text" placeholder="state" name="state">
-        <input type="number" placeholder="zipcode" name="zipcode" maxlength="5">
-        <button type="submit">Add Address</button>
-    </form>
+<p>Enter a delivery address</p>
+<form action="{% url 'add_address' menu.id section.id %}" method="POST">
+    {% csrf_token %}
+    <input type="text" placeholder="street" name="street">
+    <input type="text" placeholder="city" name="city">
+    <input type="text" placeholder="state" name="state">
+    <input type="number" placeholder="zipcode" name="zipcode" maxlength="5">
+    <button type="submit">Add Address</button>
+</form>
 {% endif %}
 <!-- END Check if user has address saved or request address -->
-<p id="menu" data-menu="{{menu.id}}">{{ menu.name }}</p>
-<p id="section" data-section="{{section.id}}">
-    {{section.name}}
-</p>
+<!-- SECTION LINKS -->
+{% for section in sections %}
+<li>
+    <a href="{% url 'section' menu.id section.id %}">{{section.name}}</a>
+</li>
+{% endfor %}
+<!-- END SECTION LINKS -->
+
 
 <br />
 <!-- Regroup queried items to arrange into 2 columns or as needed -->
@@ -36,7 +40,8 @@ Hello {{ user.first_name }}
         </td>
         {% for item in item_name reversed %}
         <td>
-            <a href="{% url 'create' menu.id section.id item.id %}"> <button class="btn btn-primary" type="submit">{{ item.size }} ${{ item.price }}</button> </a>
+            <a href="{% url 'create' menu.id section.id item.id %}"> <button class="btn btn-primary"
+                    type="submit">{{ item.size }} ${{ item.price }}</button> </a>
         </td>
         {% endfor %}
 
@@ -47,6 +52,7 @@ Hello {{ user.first_name }}
 <!-- END Regroup queried items to arrange into 2 columns or as needed -->
 <hr />
 <!-- Show items in cart -->
+{% if orders %}
 <h2 id='ordersToPlace'>Your Orders</h2>
 
 <ul id="orders">
@@ -54,29 +60,39 @@ Hello {{ user.first_name }}
     <li>
         <form action="{% url 'delete' menu.id section.id order.id %}" method="POST">
             {% csrf_token %}
-            {{ order.menuItem.item.name }} Count: {{ order.count }} 
-           {% for topping in order.toppings.all %}
-                {{ topping.name }}
-           {% endfor %}
-            <button type="submit">Delete</button>
+            {{ order.menuItem.item.name }} Count: {{ order.count }}
+            {% for topping in order.toppings.all %}
+            {{ topping.name }}
+            {% endfor %}
+            <button class="btn btn-danger" type="submit">Delete</button>
         </form>
     </li>
     {% endfor %}
 </ul>
 <hr>
+{% else %}
+
+{% endif%}
+
+{% if cart.cart_total == 0 %}
+<h2>Your Cart is empty</h2>
+{% else %}
 <h2>Your Cart total {{ cart.cart_total }}</h2>
-<ul>
-    {% for order in cart.orders.all %}
-        
-    <li>
-        {{ order.menuItem.item.name }} | 
-        {% for topping in order.toppings.all %}
-        {{ topping.name }}
-        {% endfor %}
-    </li>
-    
-    {% endfor %}
-</ul>
+
+<form action="{% url 'checkout' cart.id %}" method="POST">
+    {% csrf_token %}
+    <select name="orderOption" id="orderOption">
+        <option value="PU">Pick up</option>
+        <option value="DL">Delivery</option>
+    </select>
+    <textarea name="instructions" id="instructions" cols="30" rows="5"
+        placeholder="Delivery Instructions or special requests"></textarea>
+    <script src="https://checkout.stripe.com/checkout.js" class="stripe-button" data-key="{{ key }}"
+        data-description="Pinocchio's Pizza & Subs" data-amount="{{ cart.stripe_total }}" data-locale="auto">
+        </script>
+    {% endif %}
+
+</form>
 
 <!-- END Show items in cart -->
 {% endblock %}

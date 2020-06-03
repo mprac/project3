@@ -1,20 +1,25 @@
-{% extends "orders/base.html" %}
 
-{% block title %} Login {% endblock %}
-
-{% block body %}
 <h1>Placed Orders page</h1>
 <a href="/logout">Logout</a>
 Hello {{ user.first_name }}
 
-
+<h2>Complete Orders</h2>
 <ul>
-    {% for menu in menus %}
-    <li><a href="{% url 'menu' menu.id %}">
-    {{ menu.name }}
-    </a></li>
-    {% endfor %}
+{% for cart in carts %}
+    {% if cart.current_status == False %}
+    <li>
+        <h2>
+            {{ cart.user }} order on {{ cart.date }}
+            {{ cart.option }} {{ cart.instructions }}
+        </h2>
+        {% for order in cart.orders.all %}
+            <li>
+                {{ order.menuItem.item.name }}
+            </li>
+        {% endfor %}
+    </li>
+    {% endif %}
+{% endfor %}
+
 </ul>
 
-{{ menuitems }}
-{% endblock %}

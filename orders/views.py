@@ -1,3 +1,5 @@
+import stripe
+
 from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpRequest, JsonResponse 
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
@@ -12,6 +14,7 @@ from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie, requir
 from django.views.decorators.vary import vary_on_headers
 from django.template import RequestContext
 from django.core import serializers
+from django.conf import settings
 
 # () tuple - a collection which is ordered and changeable. allows duplicate
 # [] list - a collection which is ordered and unchangeable. allows duplicate
@@ -65,22 +68,26 @@ def section(request, menu_id, section_id):
         Cart.create_cart(user)
         menu = Menu.objects.get(pk=menu_id)
         section = Section.objects.get(pk=section_id)
+        sections = Section.objects.all()
         menuitemname = section.get_menuitemname() # dont need
         items = set(menuitemname).intersection(Item.objects.all()) # dont need
         menuitems = section.menuitems.all().order_by('item', 'size')
-        orders = Order.objects.filter(user=user.id)
         toppings = Topping.objects.all()
         cart = Cart.objects.get(user=user, current_status=True)
+        orders = cart.orders.filter(user=user.id)
+        key = settings.STRIPE_PUBLISHABLE_KEY
     except Section.DoesNotExist:
         raise Http404("Section does not exist")
     context = {
         "menu": menu,
         "section": section,
+        "sections": sections,
         "items": items,
         "menuitems": menuitems,
         "orders": orders,
         "toppings": toppings,
         "cart": cart,
+        "key": key,
     }
     return render(request, "orders/section.html", context)
 
@@ -98,35 +105,25 @@ def add_address(request, menu_id, section_id):
     return HttpResponseRedirect(reverse('section', args=(menu_id, section_id,)))
 
 @login_required(login_url='/login')
-def edit_address(request, menu_id, section_id):
-    try:
-        user = request.user
-        addressid = user.address.id
-        address = Address.objects.get(pk=addressid)
-    except KeyError:
-        pass
-    context = {
-        'user': user,
-        'address': address,
-        'menu.id': menu_id,
-        'section.id': section_id,
-    }
-    return render(request, "orders/editaddress.html", context)
-
-@login_required(login_url='/login')
 def create(request, menu_id, section_id, item_id):
     try:
         user = request.user
         menuitem = menuItem.objects.get(pk=item_id)
         orders = Order.objects.filter(user=user.id)
+        section = Section.objects.get(pk=section_id)
         toppings = Topping.objects.all()
+        substopping = subsTopping.objects.all()
+        extras = Extra.objects.all()
     except KeyError:
         pass
     context = {
         'user': user,
+        'section': section,
         'menuitem': menuitem,
          "orders": orders,
         "toppings": toppings,
+        "substopping": substopping,
+        "extras": extras
     }
     return render(request, "orders/create.html", context)
 
@@ -139,6 +136,8 @@ def add(request):
         menuitem = menuItem.objects.get(pk=item_id)
         count = request.POST['count']
         toppings = request.POST.getlist('topping')
+        subtoppings = request.POST.getlist('subtopping')
+        extra = request.POST.getlist('extra')
         section_id = menuitem.section.id
         menu_id = menuitem.section.menu.id
     except KeyError:
@@ -148,6 +147,10 @@ def add(request):
     neworder = Order.objects.get(pk=new.id)
     if toppings is not None:
         neworder.toppings.set(toppings)
+    if subtoppings is not None:
+        neworder.subsToppings.set(subtoppings)
+    if extra is not None:
+        neworder.extras.set(extra)
     cartid = Cart.create_cart(user)
     if cartid:
         cart = Cart.objects.get(pk=cartid)
@@ -156,25 +159,6 @@ def add(request):
         cart = Cart.objects.get(user=user, current_status=True)
         cart.orders.add(neworder)
     return HttpResponseRedirect(reverse('section', args=(menu_id, section_id)))
-
-# Edit Order page
-@login_required(login_url='/login')
-def edit(request, menu_id, section_id, order_id):
-    try:
-        user = request.user
-        #orderid = int(request.POST["orderid"])
-        order = Order.objects.get(pk=order_id)
-        alltoppings = Topping.objects.all()
-        selectedToppings = order.toppings.all()
-    except KeyError:
-        pass
-    context = {
-        "user": user,
-        "order": order,
-        "toppings": alltoppings,
-        "selectedToppings": selectedToppings,
-    }
-    return render(request, "orders/edit.html", context)
 
 # delete order
 @login_required(login_url='/login')
@@ -188,9 +172,32 @@ def delete(request, menu_id, section_id, order_id):
     order.delete()
     return HttpResponseRedirect(reverse('section', args=(menu_id, section_id,)))
 
+@login_required(login_url='/login')
+def checkout(request, cart_id):
+    if request.method == "POST":
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        cart = Cart.objects.get(pk=cart_id)
+        instruction = request.POST['instructions']
+        orderOption = request.POST['orderOption']
+        charge = stripe.Charge.create(
+            amount=int(cart.stripe_total()),
+            currency='usd',
+            description='Pinocchios Pizza & Subs',
+            source=request.POST['stripeToken'],
+        )
+        cart.option = str(orderOption)
+        cart.instructions = str(instruction)
+        cart.current_status = False
+        cart.save()
+        return render(request, 'orders/checkout/checkout.html')
+
 #admin order view
 def orders(request):
-    if request.user.is_staff:  
-        return render(request, "orders/staff/orders.html")
+    if request.user.is_staff:
+        carts = Cart.objects.all()
+        context = {
+            'carts': carts
+        }  
+        return render(request, "orders/staff/orders.html", context)
     else:
         return redirect(index)

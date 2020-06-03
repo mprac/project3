@@ -7,28 +7,27 @@
     const limit = getid.dataset.count;
 
     $(`.item`).on('change', function () {
-        if ($(`.item:checked`).length > limit) {
-            this.checked = false;
-            alert('Max toppings for order selected')
-        }
+      if ($(`.item:checked`).length > limit) {
+        this.checked = false;
+        alert('Max toppings for order selected')
+      }
+
     });
 
   });
-  </script>
+</script>
 {% endblock %}
 {% block title %} Create Order {% endblock %}
 
 {% block body %}
 <h1>Create Order</h1>
-<a href="/logout">Logout</a>
-Hello {{ user.first_name }}
 
 
 
 <!-- create order form  -->
 <form action="{% url 'add' %}" method="POST">
-    <div class="form-group">
-   
+  <div class="form-group">
+
     {% csrf_token %}
     <input type="hidden" name="user" value="{{user.id}}">
     <input type="hidden" name="menuItem" value="{{ menuitem.id }}">
@@ -36,36 +35,57 @@ Hello {{ user.first_name }}
     {% if menuitem.item.hasToppings %}
     <input class="form-control" id="toppingCount" type="hidden" data-count="{{ menuitem.item.toppingCount }}">
     <div class="accordion" id="accordionCheckbox">
-        <div class="card">
-          <div class="card-header" id="heading">
-            <h2 class="mb-0">
-              <button class="checkboxbutton btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#this" aria-expanded="false" aria-controls="this">
-                Select Toppings
-              </button>
-            </h2>
-          </div>
-      
-          <div id="this" class="collapse" aria-labelledby="heading" data-parent="#accordionCheckbox">
-            <div class="card-body">
-                 <!-- Checkboxes start  here -->
-                {% for topping in toppings %}
-               
-                <div class="form-check">
-                    <input class="item" type="checkbox" value="{{topping.id}}" name="topping">
-                    <label class="form-check-label" >
-                        {{ topping.name }}
-                    </label>
-                </div>
-         
-                {% endfor %}
-                <!-- Checkboxes end  here -->
+      <div class="card">
+        <div class="card-header" id="heading">
+          <h2 class="mb-0">
+            <button class="checkboxbutton btn btn-link btn-block text-left" type="button" data-toggle="collapse"
+              data-target="#this" aria-expanded="false" aria-controls="this">
+              Select Toppings
+            </button>
+          </h2>
+        </div>
+
+        <div id="this" class="collapse" aria-labelledby="heading" data-parent="#accordionCheckbox">
+          <div class="card-body">
+            <!-- Checkboxes start  here -->
+            {% if section.name == 'Subs' %}
+            {% for subtopping in substopping %}
+            <div class="form-check">
+              <input class="item" type="checkbox" value="{{subtopping.id}}" name="subtopping">
+              <label class="form-check-label">
+                {{ subtopping.name }} | ${{ subtopping.price }}
+              </label>
             </div>
+            {% endfor %}
+            {% else %}
+            {% for topping in toppings %}
+
+            <div class="form-check">
+              <input class="item" type="checkbox" value="{{topping.id}}" name="topping"
+                data-toppingname="{{ topping.name }}">
+              <label class="form-check-label">
+                {{ topping.name }}
+              </label>
             </div>
+
+            {% endfor %}
+            {% endif %}
+
+            <!-- Checkboxes end  here -->
           </div>
         </div>
+      </div>
+    </div>
     {% endif %}
     <!-- end toppings -->
-
+    {% for extra in extras %}
+    <div class="form-check">
+      <input type="checkbox" value="{{extra.id}}" name="extra">
+      <label class="form-check-label">
+        {{ extra.name }} | ${{ extra.price }}
+      </label>
+    </div>
+    {% endfor %}
     <label for="ordercount">How many?</label>
     <select class="form-control" id="ordercount" name="count">
       <option>1</option>
@@ -80,7 +100,7 @@ Hello {{ user.first_name }}
     </select>
 
     <button id="addOrder" class="form-control" type="submit">Add To Cart</button>
-</div>
+  </div>
 </form>
 
 

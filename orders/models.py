@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from django.conf import settings
 
-class Address(models.Model): #delete
+class Address(models.Model): 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="address", blank=True)
     street = models.CharField(max_length=64, blank=True)
     city = models.CharField(max_length=64, blank=True)
@@ -65,7 +65,20 @@ class menuItem(models.Model): # Section.menuitems.all()
 
 class Topping(models.Model):
     name = models.CharField(max_length=64)
+
+    def __str__(self):
+        return f"{self.name}"
+
+class subsTopping(models.Model):
+    name = models.CharField(max_length=64)
     price = models.DecimalField(max_digits=4,decimal_places=2)
+
+    def __str__(self):
+        return f"{self.name} costs {self.price}"
+
+class Extra(models.Model):
+    name = models.CharField(max_length=64)
+    price = models.DecimalField(max_digits=4, decimal_places=2)
 
     def __str__(self):
         return f"{self.name} costs {self.price}"
@@ -74,10 +87,18 @@ class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="orders", blank=True, null=True)
     menuItem = models.ForeignKey(menuItem, on_delete=models.CASCADE, null=True)
     toppings = models.ManyToManyField(Topping, blank=True)
+    subsToppings = models.ManyToManyField(subsTopping, blank=True)
+    extras = models.ManyToManyField(Extra, blank=True)
     count = models.IntegerField()
 
     def topping_cost(self):
         return sum([round(topping.price * self.count, 2) for topping in self.toppings.all()])
+
+    def subtopping_cost(self):
+        return sum([round(subtopping.price * self.count, 2) for subtopping in self.subsToppings.all()])
+    
+    def extras_cost(self):
+        return sum([round(extra.price * self.count, 2) for extra in self.extras.all()])
 
     def __str__(self):
         return f"{self.id}: Order for {self.user} - Toppings: {self.toppings}, {self.count} {self.menuItem}"
@@ -101,9 +122,11 @@ class Cart(models.Model):
         elif not Cart.objects.filter(user=user, current_status=True):
             newcart = Cart.objects.create(user=user, date=timezone.now())
         
-
     def cart_total(self): # 2 decimal places
-         return sum([round(order.menuItem.price * order.count + order.topping_cost(), 2) for order in self.orders.all()])
+         return sum([round(order.menuItem.price * order.count + order.subtopping_cost() + order.extras_cost(), 2) for order in self.orders.all()])
+
+    def stripe_total(self):
+         return sum([round(order.menuItem.price * order.count + order.subtopping_cost() + order.extras_cost(), 2) * 100 for order in self.orders.all()])   
 
     def __str__(self):
         return f"For {self.user} ordered on {self.date}, Status: {self.current_status}, Option: {self.option}"

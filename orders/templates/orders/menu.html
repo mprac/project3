@@ -3,10 +3,9 @@
 {% block title %} Login {% endblock %}
 
 {% block body %}
-<h1>Main page</h1>
-<a href="/logout">Logout</a>
-Hello {{ user.first_name }}
-<p>{{ menu }}</p>
+<h1>{{ menu.name }} Menu</h1>
+
+<p></p>
 <ul>
    {% for section in sections %}
    <li>
