@@ -21,16 +21,16 @@ Deliver to
 <!-- END Check if user has address saved or request address -->
 
 
-<!-- FIX THIISSSSSSSSSSSS    
-    
-    SECTION LINKS -->
-    <script>
-        const sectionlink = document.querySelectorAll('.nav-link')
-    </script>
+<!-- SECTION LINKS -->
+
       <ul class="nav nav-tabs">
-        {% for section in menu.sections.all %} 
+        {% for link in menu.sections.all %} 
         <li class="nav-item">
-          <a class="nav-link btn-outline-danger btn btn-sm" href="{% url 'section' menu.id section.id %}">{{section.name}}</a> 
+            {% if link.id == section.id %}
+          <a class="nav-link active" href="{% url 'section' menu.id link.id %}">{{link.name}}</a> 
+          {% else %}
+          <a class="nav-link" href="{% url 'section' menu.id link.id %}">{{link.name}}</a>
+          {% endif %}
         </li>
         {% endfor %}
       </ul>
@@ -60,9 +60,9 @@ Deliver to
     
     </table>
 </div>
-
 <!-- END Regroup queried items to arrange into 2 columns or as needed -->
-<hr />
+
+
 <!-- Show items in cart -->
 {% if orders %}
 <h2 id='ordersToPlace'>Your Orders</h2>
@@ -72,7 +72,7 @@ Deliver to
     <li>
         <form action="{% url 'delete' menu.id section.id order.id %}" method="POST">
             {% csrf_token %}
-            {{ order.menuItem.item.name }} Count: {{ order.count }}
+            {{ order.menuItem.item.name }} Count: {{ order.count }} {{ order.order_cost }}
             {% for topping in order.toppings.all %}
             {{ topping.name }}
             {% endfor %}
@@ -81,7 +81,7 @@ Deliver to
     </li>
     {% endfor %}
 </ul>
-<hr>
+
 {% else %}
 
 {% endif%}

@@ -101,6 +101,9 @@ class Order(models.Model):
     def extras_cost(self):
         return sum([round(extra.price * self.count, 2) for extra in self.extras.all()])
 
+    def order_cost(self):
+        return sum([round((self.menuItem.price + self.topping_cost() + self.subtopping_cost() + self.extras_cost()) * self.count, 2)])
+
     def __str__(self):
         return f"{self.id}: Order for {self.user} - Toppings: {self.toppings}, {self.count} {self.menuItem}"
 
