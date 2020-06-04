@@ -1,19 +1,27 @@
 {% extends "orders/base.html" %}
 
-{% block title %} Login {% endblock %}
+{% block title %} {{menu.name}} Menu {% endblock %}
 
 {% block body %}
 <h1>{{ menu.name }} Menu</h1>
-
-<p></p>
-<ul>
+<div class="card-deck">
+ <div class="row">
    {% for section in sections %}
-   <li>
-      <a href="{% url 'section' menu.id section.id %}">{{section.name}}</a>
-   </li>
-  {% endfor %}
-</ul>
+   <div class="col-4">
+      <div class="card">
+         {% load static %}
+       <img src="{{ section.photo }}" class="card-img-top" alt="...">
+       <div class="card-body">
+         <a href="{% url 'section' menu.id section.id %}" class="btn btn-success">{{section.name}}</a>
+       </div>
+     </div>
+   </div>
+  
+   {% endfor %}
 
+ </div>
+   
+ </div>
 
 
 

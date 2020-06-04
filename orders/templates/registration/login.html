@@ -1,13 +1,19 @@
-{% extends "orders/base.html" %}
+{% extends "registration/base.html" %}
 
 {% block title %} Login {% endblock %}
 {% load crispy_forms_tags %}
-{% block body %} 
-<h1>Login page</h1>
+{% block form %} 
 <form class="form-group" method="post">
     {% csrf_token %} 
     {{ form|crispy }}
+    <br/>
     <button type="submit" class="btn btn-success">Login</button>
+    <br/><br/>
     <p>Don't have an account? Join <a href="/join">here</a>!</p>
 </form>
+{% endblock%}
+{% block body %} 
 {% endblock %}
+
+
+

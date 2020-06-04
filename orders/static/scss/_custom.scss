@@ -1,0 +1,42 @@
+body {
+    background-color: #fff;
+    margin-top: 120px;
+    margin-bottom: 80px;
+}
+.jumbotron {
+    background-color: $red;
+    color: #fff;
+    text-align: center;
+}
+.col-4 {
+    margin-bottom: 20px;
+}
+.controls {
+    ul {
+        list-style-type: none;
+    }
+}
+@media (max-width: 575.98px) {
+    .display-4 {
+        font-size: 1.5rem;
+    }
+    .lead {
+            font-size: 1rem;
+    }
+} 
+// .checkboxbutton {
+//     text-align: center !important;
+// }
+.fixed-top {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 1030;
+    margin: 30px !important;
+
+    }
+
+.bg-light {
+    background-color: $green!important;
+    }

@@ -15,6 +15,7 @@ class Address(models.Model):
 
 class Menu(models.Model):
     name = models.CharField(max_length=64)
+    photo = models.ImageField(upload_to='static/img/', null=True, blank=True)
 
     def __str__(self):
         return f"Menu - {self.name}"
@@ -22,6 +23,7 @@ class Menu(models.Model):
 class Section(models.Model): # Menu.sections.all() for each section.menuitems.all()
     name = models.CharField(max_length=64)
     menu = models.ForeignKey(Menu, on_delete=models.CASCADE, related_name="sections")
+    photo = models.ImageField(upload_to='static/img/', null=True, blank=True)
 
     def get_menuitemname(self):
         return ([menuitem.item for menuitem in self.menuitems.all()])
@@ -29,7 +31,6 @@ class Section(models.Model): # Menu.sections.all() for each section.menuitems.al
     def get_menuitem(self):
          return ([menuitem for menuitem in self.menuitems.all()])
     
-
     def __str__(self):
         return f"Section - {self.name} in {self.menu} Menu"
 

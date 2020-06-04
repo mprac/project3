@@ -2,12 +2,11 @@
 {% block title %} Login {% endblock %}
 {% block body %}
 
-<h1>{{section.name}}</h1>
+<h1 class="display-4">{{section.name}} in {{ menu.name }} Menu</h1> 
 <!-- Check if user has address saved or request address -->
 {% if user.address.get %}
-Deliver to <a href="">
+Deliver to
     {{ user.address.get.street }}, {{ user.address.get.city }}, {{ user.address.get.state }} {{ user.address.get.zipcode }}
-</a>
 {% else %}
 <p>Enter a delivery address</p>
 <form action="{% url 'add_address' menu.id section.id %}" method="POST">
@@ -20,35 +19,48 @@ Deliver to <a href="">
 </form>
 {% endif %}
 <!-- END Check if user has address saved or request address -->
-<!-- SECTION LINKS -->
-{% for section in sections %}
-<li>
-    <a href="{% url 'section' menu.id section.id %}">{{section.name}}</a>
-</li>
-{% endfor %}
+
+
+<!-- FIX THIISSSSSSSSSSSS    
+    
+    SECTION LINKS -->
+    <script>
+        const sectionlink = document.querySelectorAll('.nav-link')
+    </script>
+      <ul class="nav nav-tabs">
+        {% for section in menu.sections.all %} 
+        <li class="nav-item">
+          <a class="nav-link btn-outline-danger btn btn-sm" href="{% url 'section' menu.id section.id %}">{{section.name}}</a> 
+        </li>
+        {% endfor %}
+      </ul>
+      
 <!-- END SECTION LINKS -->
 
 
 <br />
 <!-- Regroup queried items to arrange into 2 columns or as needed -->
-<table>
-    {% regroup menuitems by item as item_list %}
-    <tr>
-        {% for items, item_name in item_list %}
-        <td>
-            {{  items.name }}
-        </td>
-        {% for item in item_name reversed %}
-        <td>
-            <a href="{% url 'create' menu.id section.id item.id %}"> <button class="btn btn-primary"
-                    type="submit">{{ item.size }} ${{ item.price }}</button> </a>
-        </td>
+<div class="table-responsive">
+    <table class="table table-sm ">
+        {% regroup menuitems by item as item_list %}
+        <tr>
+            {% for items, item_name in item_list %}
+            <td>
+                <b>{{  items.name }} </b>
+            </td>
+            {% for item in item_name reversed %}
+            <td>
+                <a href="{% url 'create' menu.id section.id item.id %}"> <button class="btn btn-outline-success btn-sm"
+                        type="submit">{{ item.size }} ${{ item.price }}</button> </a>
+            </td>
+            {% endfor %}
+    
+        </tr>
         {% endfor %}
+    
+    </table>
+</div>
 
-    </tr>
-    {% endfor %}
-
-</table>
 <!-- END Regroup queried items to arrange into 2 columns or as needed -->
 <hr />
 <!-- Show items in cart -->
@@ -64,7 +76,7 @@ Deliver to <a href="">
             {% for topping in order.toppings.all %}
             {{ topping.name }}
             {% endfor %}
-            <button class="btn btn-danger" type="submit">Delete</button>
+            <button class="btn btn-outline-danger btn-sm" type="submit">Delete</button>
         </form>
     </li>
     {% endfor %}
@@ -95,4 +107,6 @@ Deliver to <a href="">
 </form>
 
 <!-- END Show items in cart -->
+
+
 {% endblock %}

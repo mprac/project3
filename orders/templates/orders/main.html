@@ -3,16 +3,17 @@
 {% block title %} Pinocchio's Pizza & Subs {% endblock %}
 
 {% block body %}
-<h1>Pinocchio's Pizza & Subs</h1>
-
-
-<ul>
+  <div class="card-deck">
     {% for menu in menus %}
-    <li><a href="{% url 'menu' menu.id %}">
-    {{ menu.name }}
-    </a></li>
+    <div class="card">
+        {% load static %}
+      <img src="{{ menu.photo }}" class="card-img-top" alt="...">
+      <div class="card-body">
+        
+        <a href="{% url 'menu' menu.id %}" class="btn btn-success">{{ menu.name }} Menu</a>
+      </div>
+    </div>
     {% endfor %}
-</ul>
-
-{{ menuitems }}
+  </div>
 {% endblock %}
+

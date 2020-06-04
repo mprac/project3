@@ -64,6 +64,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',
             ],
         },
     },
@@ -124,3 +125,5 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login'
 STRIPE_SECRET_KEY = 'sk_test_8eeZw8uNIbHxjI7p4eSt5xW0'
 STRIPE_PUBLISHABLE_KEY = 'pk_test_qL22JGzabBWtp9wmol0poe9R'
+MEDIA_ROOT =  os.path.join(BASE_DIR, 'orders/') 
+MEDIA_URL = 'static/img/'
