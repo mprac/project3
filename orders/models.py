@@ -20,7 +20,7 @@ class Menu(models.Model):
     def __str__(self):
         return f"Menu - {self.name}"
 
-class Section(models.Model): # Menu.sections.all() for each section.menuitems.all()
+class Section(models.Model): 
     name = models.CharField(max_length=64)
     menu = models.ForeignKey(Menu, on_delete=models.CASCADE, related_name="sections")
     photo = models.ImageField(upload_to='static/img/', null=True, blank=True)
@@ -48,7 +48,7 @@ class Item(models.Model):
     def __str__(self):
         return f"{self.name}, {self.hasToppings}, {self.toppingCount}"
 
-class menuItem(models.Model): # Section.menuitems.all()
+class menuItem(models.Model):
     section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name='menuitems')
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='menuitems')
     style = models.ForeignKey(Style, on_delete=models.CASCADE, blank=True, null=True)
@@ -123,7 +123,7 @@ class Cart(models.Model):
         elif not Cart.objects.filter(user=user, current_status=True):
             newcart = Cart.objects.create(user=user, date=timezone.now())
         
-    def cart_total(self): # 2 decimal places
+    def cart_total(self):
          return sum([round(order.menuItem.price * order.count + order.subtopping_cost() + order.extras_cost(), 2) for order in self.orders.all()])
 
     def stripe_total(self):

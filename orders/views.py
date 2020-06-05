@@ -1,25 +1,14 @@
 import stripe
 
-from django.http import HttpResponse, HttpResponseRedirect, Http404, HttpRequest, JsonResponse 
+from django.http import HttpResponseRedirect, Http404 
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
-from .forms import RegisterForm, EditProfileForm, EditAddressForm
+from .forms import RegisterForm
 from django.contrib.auth.models import User
-from django.urls import reverse, resolve
+from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
 from .models import *
-from django.views.decorators.http import require_http_methods
-from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie, requires_csrf_token, csrf_protect
-from django.views.decorators.vary import vary_on_headers
-from django.template import RequestContext
-from django.core import serializers
 from django.conf import settings
-
-# () tuple - a collection which is ordered and changeable. allows duplicate
-# [] list - a collection which is ordered and unchangeable. allows duplicate
-# {} set - a collection which is unordered and unindexed. no duplicates
-# {} dictionary - is a collection which is unordered changeable and indexed.no duplicates
 
 # Create your views here.
 def index(request):
@@ -35,6 +24,7 @@ def index(request):
             }
     return render(request, "orders/main.html", context)
 
+# join the website
 def join(request):
     if request.method == "POST":
         form = RegisterForm(request.POST)
@@ -45,6 +35,7 @@ def join(request):
         form = RegisterForm()
     return render(request, "registration/join.html", {'form': form})
 
+# show all menus
 @login_required(login_url='/login')
 def menu(request, menu_id):
     try:
@@ -61,6 +52,7 @@ def menu(request, menu_id):
         }
         return render(request, "orders/menu.html", context)
 
+#show all sections in selected menu
 @login_required(login_url='/login')
 def section(request, menu_id, section_id):
     try:
@@ -91,6 +83,7 @@ def section(request, menu_id, section_id):
     }
     return render(request, "orders/section.html", context)
 
+#add users address found in section view
 @login_required(login_url='/login')
 def add_address(request, menu_id, section_id):
     try:
@@ -104,6 +97,7 @@ def add_address(request, menu_id, section_id):
     Address.objects.create(user=user, street=street, city=city, state=state, zipcode=zipcode)
     return HttpResponseRedirect(reverse('section', args=(menu_id, section_id,)))
 
+#create/customize the order 
 @login_required(login_url='/login')
 def create(request, menu_id, section_id, item_id):
     try:
@@ -172,6 +166,7 @@ def delete(request, menu_id, section_id, order_id):
     order.delete()
     return HttpResponseRedirect(reverse('section', args=(menu_id, section_id,)))
 
+#checkout using stripe and update cart database
 @login_required(login_url='/login')
 def checkout(request, cart_id):
     if request.method == "POST":

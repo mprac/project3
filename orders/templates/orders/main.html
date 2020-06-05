@@ -1,19 +1,15 @@
 {% extends "orders/base.html" %}
-
 {% block title %} Pinocchio's Pizza & Subs {% endblock %}
-
 {% block body %}
-  <div class="card-deck">
-    {% for menu in menus %}
-    <div class="card">
-        {% load static %}
-      <img src="{{ menu.photo }}" class="card-img-top" alt="...">
-      <div class="card-body">
-        
-        <a href="{% url 'menu' menu.id %}" class="btn btn-success">{{ menu.name }} Menu</a>
-      </div>
+<div class="card-deck">
+  {% for menu in menus %}
+  <div class="card">
+    {% load static %}
+    <img src="{{ menu.photo }}" class="card-img-top" alt="...">
+    <div class="card-body">
+      <a href="{% url 'menu' menu.id %}" class="btn btn-success">{{ menu.name }} Menu</a>
     </div>
-    {% endfor %}
   </div>
+  {% endfor %}
+</div>
 {% endblock %}
-

@@ -1,7 +1,6 @@
 {% extends "orders/base.html" %}
-{% block title %} Login {% endblock %}
+{% block title %} {{ section.name }} {% endblock %}
 {% block body %}
-
 <h1 class="display-4">{{section.name}} in {{ menu.name }} Menu</h1>
 <!-- Check if user has address saved or request address -->
 {% if user.address.get %}
@@ -19,10 +18,7 @@ Deliver to
 </form>
 {% endif %}
 <!-- END Check if user has address saved or request address -->
-
-
 <!-- SECTION LINKS -->
-
 <ul class="nav nav-tabs" style="margin-top: 30px;">
     {% for link in menu.sections.all %}
     <li class="nav-item">
@@ -34,9 +30,7 @@ Deliver to
     </li>
     {% endfor %}
 </ul>
-
 <!-- END SECTION LINKS -->
-
 <div class="container">
     <div class="row" style="margin-top: 30px;">
         <div class="col-md-8">
@@ -97,24 +91,24 @@ Deliver to
                     </ul>
                     <form action="{% url 'checkout' cart.id %}" method="POST">
                         {% csrf_token %}
-                            <div class="form-group">
-                                <select name="orderOption" class="form-control" id="orderOption">
-                                    <option value="PU">Pick up</option>
-                                    <option value="DL">Delivery</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <input name="instructions" type="text" class="form-control" placeholder="Instructions">
-                            </div>
-                            <div class="form-group">
-                                <script src="https://checkout.stripe.com/checkout.js" class="stripe-button"
-                                    data-key="{{ key }}" data-description="Pinocchio's Pizza & Subs"
-                                    data-amount="{{ cart.stripe_total }}" data-locale="auto">
-                                    </script>
-                            </div>
+                        <div class="form-group">
+                            <select name="orderOption" class="form-control" id="orderOption">
+                                <option value="PU">Pick up</option>
+                                <option value="DL">Delivery</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <input name="instructions" type="text" class="form-control" placeholder="Instructions">
+                        </div>
+                        <div class="form-group">
+                            <script src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+                                data-key="{{ key }}" data-description="Pinocchio's Pizza & Subs"
+                                data-amount="{{ cart.stripe_total }}" data-locale="auto">
+                                </script>
+                        </div>
                     </form>
                 </div>
-               
+
                 {% endif %}
             </div>
             <!-- END Cart -->
@@ -122,14 +116,6 @@ Deliver to
     </div>
 </div>
 <br />
-
-
-
-
 </div>
-
-
-
 </form>
-
 {% endblock %}
