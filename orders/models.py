@@ -92,9 +92,6 @@ class Order(models.Model):
     extras = models.ManyToManyField(Extra, blank=True)
     count = models.IntegerField()
 
-    def topping_cost(self):
-        return sum([round(topping.price * self.count, 2) for topping in self.toppings.all()])
-
     def subtopping_cost(self):
         return sum([round(subtopping.price * self.count, 2) for subtopping in self.subsToppings.all()])
     
@@ -102,7 +99,7 @@ class Order(models.Model):
         return sum([round(extra.price * self.count, 2) for extra in self.extras.all()])
 
     def order_cost(self):
-        return sum([round((self.menuItem.price + self.topping_cost() + self.subtopping_cost() + self.extras_cost()) * self.count, 2)])
+        return sum([round((self.menuItem.price + self.subtopping_cost() + self.extras_cost()) * self.count, 2)])
 
     def __str__(self):
         return f"{self.id}: Order for {self.user} - Toppings: {self.toppings}, {self.count} {self.menuItem}"
@@ -130,7 +127,10 @@ class Cart(models.Model):
          return sum([round(order.menuItem.price * order.count + order.subtopping_cost() + order.extras_cost(), 2) for order in self.orders.all()])
 
     def stripe_total(self):
-         return sum([round(order.menuItem.price * order.count + order.subtopping_cost() + order.extras_cost(), 2) * 100 for order in self.orders.all()])   
+         return sum([round(order.menuItem.price * order.count + order.subtopping_cost() + order.extras_cost(), 2) * 100 for order in self.orders.all()]) 
+
+    def total_items(self):
+        return sum([order.count for order in self.orders.all()])  
 
     def __str__(self):
         return f"For {self.user} ordered on {self.date}, Status: {self.current_status}, Option: {self.option}"
