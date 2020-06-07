@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'i0&iq&e9u9h6(4_7%pt2s9)f=c$kso=k$c$w@fi9215s=1q0^d'
+SECRET_KEY = ''
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -123,7 +123,7 @@ STATIC_URL = '/static/'
 CRISPY_TAMPLATE_PACK= 'bootstrap4'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login'
-STRIPE_SECRET_KEY = 'sk_test_8eeZw8uNIbHxjI7p4eSt5xW0'
-STRIPE_PUBLISHABLE_KEY = 'pk_test_qL22JGzabBWtp9wmol0poe9R'
+STRIPE_SECRET_KEY = ''
+STRIPE_PUBLISHABLE_KEY = ''
 MEDIA_ROOT =  os.path.join(BASE_DIR, 'orders/') 
 MEDIA_URL = 'static/img/'
